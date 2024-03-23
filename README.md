@@ -1,4 +1,4 @@
-This is a python server to create LSL stream inlets for LSL streaming devices that have opened outlets
+This is a python server to create LSL stream inlets + Kafka producers for LSL streaming devices that have opened outlets
 
 It will be refactored into a thread pool to serve the following functionality:
 1) user will send a request with the following data 
@@ -18,9 +18,12 @@ It will be refactored into a thread pool to serve the following functionality:
   port: int (for zeroMQ)
 	sessionID: "stringstrings"
 },...]
-2) for each of the objects in the collection, a proper listening LSL stream inlet thread will start
+2) for each of the objects in the collection, a proper listening LSL stream inlet/Kafka producer process will start
 
-The server will utilize a thread pool and expose a POST endpoint to receive the request
+The server will have POST endpoints to receive the start and stop listening requests. 
+The server ensures all processes can share memory correctly.
+
+
 
 
 
