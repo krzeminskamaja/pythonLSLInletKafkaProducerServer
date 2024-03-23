@@ -12,7 +12,7 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 def main(argv):
     srate = 100
     name = 'BioSemi'
-    type = 'EEG'
+    type = 'ET'
     n_channels = 31
     help_string = 'SendData.py -s <sampling_rate> -n <stream_name> -t <stream_type>'
     try:

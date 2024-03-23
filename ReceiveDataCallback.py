@@ -5,9 +5,9 @@ import msgpack
 from kafpaProducer import KafkaProducerMinimal
 
 class ReceiveLSLStreamToKafka:
-    def receiveFromInletProduceToKafka(outletName,topicName,kafkaPort):
+    def receiveFromInletProduceToKafka(self,outletName,topicName,kafkaPort):
         # first resolve an EEG stream on the lab network
-        print("looking for an {outletName} stream")
+        print(f'looking for an {outletName} stream')
         streams = resolve_stream('type', outletName)
 
         producer = KafkaProducerMinimal 
@@ -19,8 +19,6 @@ class ReceiveLSLStreamToKafka:
             # get a new sample (you can also omit the timestamp part if you're not
             # interested in it)
             sample, timestamp = inlet.pull_sample()
-            print(timestamp, sample)
             #message = msgpack.loads({'sample':sample,'timestamp':timestamp})
-            producer.sendToKafka({'sample':sample,'timestamp':timestamp})
-            print(timestamp, sample)
+            producer.sendToKafka({'outletName':outletName, 'sample':sample,'timestamp':timestamp},topicName,kafkaPort)
 

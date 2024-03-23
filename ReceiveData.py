@@ -19,7 +19,6 @@ def main():
         # get a new sample (you can also omit the timestamp part if you're not
         # interested in it)
         sample, timestamp = inlet.pull_sample()
-        print(timestamp, sample)
         #message = msgpack.loads({'sample':sample,'timestamp':timestamp})
         producer.sendToKafka({'sample':sample,'timestamp':timestamp})
         print(timestamp, sample)
