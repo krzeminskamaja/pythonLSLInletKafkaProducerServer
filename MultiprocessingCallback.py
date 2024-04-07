@@ -6,9 +6,19 @@ from ReceiveDataCallback import ReceiveLSLStreamToKafka # imported for using que
 
 class MultiprocessingCallback:
 
-    def __init__(self):
+    def __init__(self,app):
         self.tasks_to_accomplish = Queue()
         self.tasks_that_are_done = Queue()
+        self.appForLogging = app
+
+    def initializeDeviceTypesAndProcesses(self, deviceTypes):
+        self.activeDeviceTypes = deviceTypes
+        self.processes = []
+        number_of_task = len(self.activeDeviceTypes)
+        for i in range(number_of_task):
+            self.tasks_to_accomplish.put(self.activeDeviceTypes[i])
+        self.appForLogging.logger.info('deviceTypes and Processes initialized')
+
 
     @staticmethod
     def take_job(tasks_to_accomplish,tasks_that_are_done,receiveLSLStreamToKafka=ReceiveLSLStreamToKafka()):
@@ -35,29 +45,30 @@ class MultiprocessingCallback:
         return True
 
 
-    def startListenerProcesses(self,inletType=['EEG','ET']):
-        number_of_task = len(inletType)
-        number_of_processes = len(inletType)
-        processes = []
+    def startListenerProcesses(self):
+        number_of_processes = len(self.activeDeviceTypes)
         receiveLSLStreamToKafka = ReceiveLSLStreamToKafka()
 
-        for i in range(number_of_task):
-            self.tasks_to_accomplish.put(inletType[i])
-
-        print('about to create processes')
+        self.appForLogging.logger.info('about to create processes')
         # creating processes
         for w in range(number_of_processes):
+            # give custom unique id by which we can kill them
             p = Process(target=MultiprocessingCallback.take_job, args=(self.tasks_to_accomplish,self.tasks_that_are_done,receiveLSLStreamToKafka))
-            processes.append(p)
+            self.processes.append(p)
             p.start()
 
+        self.appForLogging.logger.info('processes created')
+        return True
+    
+    def stopListenerProcesses(self):
         # completing process
-        for p in processes:
+        for p in self.processes:
             p.join()
 
         # print the output
         while not self.tasks_that_are_done.empty():
-            print(self.tasks_that_are_done.get())
+            self.appForLogging.logger.info(self.tasks_that_are_done.get())
 
+        self.appForLogging.logger.info('processes stopped')
         return True
     
