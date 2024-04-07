@@ -8,6 +8,7 @@ class KafkaProducerMinimal:
 
     def sendToKafka(msg,topicName='quickstart-events',kafkaPort=9092):
         #producer = KafkaProducer(bootstrap_servers=['localhost:9092'],api_version=(0,11,5),value_serializer=lambda m: json.dumps(m).encode('ascii'),max_block_ms = 120000)
+        #TODO: refactor this to create one common object outside of this methods
         producer = KafkaProducer(bootstrap_servers=['localhost:'+str(kafkaPort)],api_version=(0,11,5),value_serializer=msgpack.dumps)
 
         # Asynchronous by default

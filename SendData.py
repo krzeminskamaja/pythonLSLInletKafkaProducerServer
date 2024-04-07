@@ -10,9 +10,9 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 
 
 def main(argv):
-    srate = 100
+    srate = 1
     name = 'BioSemi'
-    type = 'ET'
+    type = 'EEG'
     n_channels = 31
     help_string = 'SendData.py -s <sampling_rate> -n <stream_name> -t <stream_type>'
     try:
@@ -57,7 +57,7 @@ def main(argv):
             outlet.push_sample(mysample)
         sent_samples += required_samples
         # now send it and wait for a bit before trying again.
-        time.sleep(2)
+        time.sleep(10)
 
 
 if __name__ == '__main__':

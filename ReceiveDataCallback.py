@@ -5,7 +5,9 @@ import msgpack
 from kafpaProducer import KafkaProducerMinimal
 
 class ReceiveLSLStreamToKafka:
-    def receiveFromInletProduceToKafka(self,outletName,topicName,kafkaPort):
+    def __init__(self):
+        self.isActive = True
+    def receiveFromInletProduceToKafka(self,outletName,topicName,kafkaPort,killEventSet):
         # first resolve an EEG stream on the lab network
         print(f'looking for an {outletName} stream')
         streams = resolve_stream('type', outletName)
@@ -15,7 +17,7 @@ class ReceiveLSLStreamToKafka:
         # create a new inlet to read from the stream
         inlet = StreamInlet(streams[0])
 
-        while True:
+        while killEventSet==False:
             # get a new sample (you can also omit the timestamp part if you're not
             # interested in it)
             sample, timestamp = inlet.pull_sample()
