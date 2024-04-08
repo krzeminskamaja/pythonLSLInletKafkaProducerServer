@@ -56,6 +56,7 @@ class MultiprocessingCallback:
             p.daemon = True
             self.processes.append(p)
             p.start()
+            print('process created for device '+p.name)
 
         self.appForLogging.logger.info('processes created')
         return True
@@ -70,6 +71,7 @@ class MultiprocessingCallback:
         p.daemon = True
         self.processes.append(p)
         p.start()
+        print('process created for device '+p.name)
 
         self.appForLogging.logger.info('processes created')
         return True
@@ -77,29 +79,43 @@ class MultiprocessingCallback:
     def stopListenerProcesses(self):
         # completing process
         for p in self.processes:
-            p.terminate()
-            p.join(1)#force joining after 1 second
-            p.close()
+            if(p.is_alive()):
+                try:
+                    self.processes.remove(lambda x: x.name == p.name)
+                except:
+                    print('stop listener activeDeviceType removal exception')
+                p.terminate()
+                p.join(1)#force joining after 1 second
+                p.close()
 
         # print the output
         while not self.tasks_that_are_done.empty():
             self.appForLogging.logger.info(self.tasks_that_are_done.get())
 
         self.appForLogging.logger.info('processes stopped')
-        print('processes stopped')
+        print('all processes stopped')
         self.activeDeviceTypes = []
         self.processes = []
         return True
     
     def stopListenerProcess(self,listenerID):
         # completing process
-        self.activeDeviceTypes.remove(list(filter(lambda x: x == listenerID,self.activeDeviceTypes))[0])
+        try:
+            self.activeDeviceTypes.remove(list(filter(lambda x: x == listenerID,self.activeDeviceTypes))[0])
+        except:
+            print('stop listener activeDeviceType removal exception')
+        
         p = list(filter(lambda x: x.name == listenerID,self.processes))[0]
         print("p: "+p.name)
-        p.terminate()
-        p.join(1)#force joining after 1 second
-        p.close()
-        self.processes.remove(lambda x: x.name == listenerID)
+        if(p.is_alive()):
+            try:
+                self.processes.remove(lambda x: x.name == listenerID)
+            except:
+                print('exception on removing process')
+            p.terminate()
+            p.join(1)#force joining after 1 second
+            p.close()
+        #self.processes.remove(lambda x: x.name == listenerID)
         print("processes stopped: "+listenerID)
         return True
     
