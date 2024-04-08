@@ -22,25 +22,8 @@ class MultiprocessingCallback:
 
 
     @staticmethod
-    def take_job(tasks_to_accomplish,tasks_that_are_done,killEventSet,receiveLSLStreamToKafka=ReceiveLSLStreamToKafka()):
-        try:
-            '''
-                try to get task from the queue. get_nowait() function will 
-                raise queue.Empty exception if the queue is empty. 
-                queue(False) function would do the same task also.
-            '''
-            task = tasks_to_accomplish.get_nowait()
-        except Exception as e:
-            print('exception: ',e)
-        else:
-            '''
-                if no exception has been raised, add the task completion 
-                message to task_that_are_done queue
-            '''
-            print('task: ',task)
-            receiveLSLStreamToKafka.receiveFromInletProduceToKafka(task,'quickstart-events',9092,killEventSet)
-            tasks_that_are_done.put(task + ' is done by ' + current_process().name)
-            time.sleep(.5)
+    def take_job(processName, tasks_to_accomplish,tasks_that_are_done,killEventSet,receiveLSLStreamToKafka=ReceiveLSLStreamToKafka()):
+        receiveLSLStreamToKafka.receiveFromInletProduceToKafka(processName,'quickstart-events',9092,killEventSet)
         return True
 
 
@@ -52,7 +35,7 @@ class MultiprocessingCallback:
         # creating processes
         for w in range(number_of_processes):
             # give custom unique id by which we can kill them
-            p = Process(name=self.activeDeviceTypes[w],target=MultiprocessingCallback.take_job, args=(self.tasks_to_accomplish,self.tasks_that_are_done,False,receiveLSLStreamToKafka))
+            p = Process(name=self.activeDeviceTypes[w],target=MultiprocessingCallback.take_job, args=(self.activeDeviceTypes[w],self.tasks_to_accomplish,self.tasks_that_are_done,False,receiveLSLStreamToKafka))
             p.daemon = True
             self.processes.append(p)
             p.start()
@@ -67,7 +50,7 @@ class MultiprocessingCallback:
         self.tasks_to_accomplish.put(deviceType)
         self.appForLogging.logger.info('about to create process')
         # give custom unique id by which we can kill them
-        p = Process(name=deviceType,target=MultiprocessingCallback.take_job, args=(self.tasks_to_accomplish,self.tasks_that_are_done,False,receiveLSLStreamToKafka))
+        p = Process(name=deviceType,target=MultiprocessingCallback.take_job, args=(deviceType,self.tasks_to_accomplish,self.tasks_that_are_done,False,receiveLSLStreamToKafka))
         p.daemon = True
         self.processes.append(p)
         p.start()
@@ -79,14 +62,13 @@ class MultiprocessingCallback:
     def stopListenerProcesses(self):
         # completing process
         for p in self.processes:
-            if(p.is_alive()):
-                try:
-                    self.processes.remove(lambda x: x.name == p.name)
-                except:
-                    print('stop listener activeDeviceType removal exception')
-                p.terminate()
-                p.join(1)#force joining after 1 second
-                p.close()
+            try:
+                if(p.is_alive()):
+                    p.terminate()
+                    p.join(1)#force joining after 1 second
+                    p.close()
+            except:
+                print('stop listener activeDeviceType removal exception')
 
         # print the output
         while not self.tasks_that_are_done.empty():
@@ -105,16 +87,15 @@ class MultiprocessingCallback:
         except:
             print('stop listener activeDeviceType removal exception')
         
-        p = list(filter(lambda x: x.name == listenerID,self.processes))[0]
-        print("p: "+p.name)
-        if(p.is_alive()):
+        p = list(filter(lambda x: x.name == listenerID,self.processes))
+        for proc in p:
             try:
-                self.processes.remove(lambda x: x.name == listenerID)
+                if(proc.is_alive()):
+                    proc.terminate()
+                    proc.join(1)#force joining after 1 second
+                    proc.close()
             except:
                 print('exception on removing process')
-            p.terminate()
-            p.join(1)#force joining after 1 second
-            p.close()
         #self.processes.remove(lambda x: x.name == listenerID)
         print("processes stopped: "+listenerID)
         return True
