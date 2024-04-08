@@ -16,11 +16,24 @@ def startLSLListeners():
     multiprocessingCallback.startListenerProcesses()
     return "OK"
 
+@app.route("/startListener", methods=["POST"])
+def startLSLListener():
+    print('im printing yall')
+    print(request.json['deviceTypes'])
+    multiprocessingCallback.startListenerProcess(request.json['deviceTypes'][0])
+    return "OK"
+
 @app.route("/stopListeners", methods=["POST"])
 def stopLSLListeners():
     print('im printing yall')
-    print(request.json['deviceTypes'])
     multiprocessingCallback.stopListenerProcesses()
+    return "OK"
+
+@app.route("/stopListener", methods=["POST"])
+def stopLSLListener():
+    print('im printing yall')
+    print(request.json['listenerID'])
+    multiprocessingCallback.stopListenerProcess(request.json['listenerID'])
     return "OK"
 
 @app.route("/getListenersStatus", methods=["GET"])

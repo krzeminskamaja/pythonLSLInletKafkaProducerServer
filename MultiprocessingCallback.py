@@ -60,6 +60,20 @@ class MultiprocessingCallback:
         self.appForLogging.logger.info('processes created')
         return True
     
+    def startListenerProcess(self,deviceType):
+        receiveLSLStreamToKafka = ReceiveLSLStreamToKafka()
+        self.activeDeviceTypes.append(deviceType)
+        self.tasks_to_accomplish.put(deviceType)
+        self.appForLogging.logger.info('about to create process')
+        # give custom unique id by which we can kill them
+        p = Process(name=deviceType,target=MultiprocessingCallback.take_job, args=(self.tasks_to_accomplish,self.tasks_that_are_done,False,receiveLSLStreamToKafka))
+        p.daemon = True
+        self.processes.append(p)
+        p.start()
+
+        self.appForLogging.logger.info('processes created')
+        return True
+    
     def stopListenerProcesses(self):
         # completing process
         for p in self.processes:
@@ -73,14 +87,32 @@ class MultiprocessingCallback:
 
         self.appForLogging.logger.info('processes stopped')
         print('processes stopped')
+        self.activeDeviceTypes = []
+        self.processes = []
+        return True
+    
+    def stopListenerProcess(self,listenerID):
+        # completing process
+        self.activeDeviceTypes.remove(list(filter(lambda x: x == listenerID,self.activeDeviceTypes))[0])
+        p = list(filter(lambda x: x.name == listenerID,self.processes))[0]
+        print("p: "+p.name)
+        p.terminate()
+        p.join(1)#force joining after 1 second
+        p.close()
+        self.processes.remove(lambda x: x.name == listenerID)
+        print("processes stopped: "+listenerID)
         return True
     
     def getProcessStatus(self):
         print('printing processes names')
         listenerStatuses = []
         for p in self.processes:
-            listenerStatuses.append({"name":p.name,
-                                     "status":p.is_alive()})
+            try:
+                listenerStatuses.append({"name":p.name,
+                                        "status":p.is_alive()})
+            except ValueError as error:
+                listenerStatuses.append({"name":p.name,
+                                        "status":False})
         print('printed processes names')
         return listenerStatuses
 
