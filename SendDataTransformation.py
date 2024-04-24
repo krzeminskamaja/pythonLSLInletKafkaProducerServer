@@ -12,8 +12,8 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 def main(argv):
     srate = 2
     name = 'BioSemi'
-    type = 'ET'
-    n_channels = 31
+    type = 'EEG'
+    n_channels = 8
     help_string = 'SendData.py -s <sampling_rate> -n <stream_name> -t <stream_type>'
     try:
         opts, args = getopt.getopt(argv, "hs:c:n:t:", longopts=["srate=", "channels=", "name=", "type"])
@@ -46,18 +46,19 @@ def main(argv):
     print("now sending data...")
     start_time = local_clock()
     sent_samples = 0
-    while True:
-        elapsed_time = local_clock() - start_time
-        required_samples = int(srate * elapsed_time) - sent_samples
-        for sample_ix in range(required_samples):
-            # make a new random n_channels sample; this is converted into a
-            # pylsl.vectorf (the data type that is expected by push_sample)
-            mysample = {rand() for _ in range(n_channels)}
-            # now send it
-            outlet.push_sample(mysample)
-        sent_samples += required_samples
-        # now send it and wait for a bit before trying again.
-        time.sleep(2)
+    #while True:
+    elapsed_time = local_clock() - start_time
+    required_samples = int(srate * elapsed_time) - sent_samples
+    #for sample_ix in range(required_samples):
+        # make a new random n_channels sample; this is converted into a
+        # pylsl.vectorf (the data type that is expected by push_sample)
+    mysample = {rand() for _ in range(n_channels)}
+    print(mysample)
+    # now send it
+    outlet.push_sample(mysample)
+    sent_samples += required_samples
+    # now send it and wait for a bit before trying again.
+    time.sleep(10)
 
 
 if __name__ == '__main__':

@@ -22,8 +22,13 @@ class MultiprocessingCallback:
 
 
     @staticmethod
-    def take_job(processName, tasks_to_accomplish,tasks_that_are_done,killEventSet,receiveLSLStreamToKafka=ReceiveLSLStreamToKafka()):
-        receiveLSLStreamToKafka.receiveFromInletProduceToKafka(processName,'quickstart-events',9092,killEventSet)
+    def take_job(outletType, tasks_to_accomplish,tasks_that_are_done,killEventSet,receiveLSLStreamToKafka=ReceiveLSLStreamToKafka()):
+        topic = outletType
+        topicElems = outletType.split('_')
+        outletType = topicElems[len(topicElems)-1]
+        print('take job: ')
+        print(outletType)
+        receiveLSLStreamToKafka.receiveFromInletProduceToKafka(outletType,topic,9092,killEventSet)
         return True
 
 
@@ -112,4 +117,5 @@ class MultiprocessingCallback:
                                         "status":False})
         print('printed processes names')
         return listenerStatuses
+
 
