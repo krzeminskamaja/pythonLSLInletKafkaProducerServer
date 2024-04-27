@@ -1,7 +1,7 @@
 """Example program to show how to read a multi-channel time series from LSL."""
 
 from pylsl import StreamInlet, resolve_stream,local_clock
-import datetime
+import time
 import msgpack
 from kafpaProducer import KafkaProducerMinimal
 
@@ -15,11 +15,17 @@ class ReceiveLSLStreamToKafka:
 
         producer = KafkaProducerMinimal 
 
+        #timestamp
+        timestampLSL1=local_clock() #seconds since last machnie boot
+        timestampSystem = time.time() #seconds since epoch
+        timestampLSL2=local_clock() #seconds since last machnie boot
+        timestampLSL=(timestampLSL1+timestampLSL2)/2
+
         # create a new inlet to read from the stream
         inlet = StreamInlet(streams[0])
         # send stream info as a first message
         info = inlet.info()
-        producer.sendToKafka({'outletName':outletName, 'info':info.as_xml(), 'timestampLSL': local_clock(), 'timestampPython':datetime.datetime.now().strftime("%Y/%d/%m, %H:%M:%S:%f")},topicName,kafkaPort)
+        producer.sendToKafka({'outletName':outletName, 'info':info.as_xml(), 'timestampLSL': timestampLSL, 'timestampSystem':timestampSystem},topicName,kafkaPort)
 
         while killEventSet==False:
             # get a new sample (you can also omit the timestamp part if you're not
