@@ -10,8 +10,6 @@ with open('data.txt') as f:
     latency = []
     lines = f.readlines()
     for index, line in enumerate(lines):
-        if(index>251):
-            break
         if(line.strip()==""):
             continue
         sample=line[32:]

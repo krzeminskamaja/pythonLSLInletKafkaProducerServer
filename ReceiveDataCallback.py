@@ -13,7 +13,7 @@ class ReceiveLSLStreamToKafka:
         print(f'looking for an {outletName} stream')
         streams = resolve_stream('type', outletName)
 
-        producer = KafkaProducerMinimal 
+        producer = KafkaProducerMinimal()
 
         #timestamp
         timestampLSL1=local_clock() #seconds since last machnie boot
@@ -24,6 +24,7 @@ class ReceiveLSLStreamToKafka:
         # create a new inlet to read from the stream
         inlet = StreamInlet(streams[0])
         # send stream info as a first message
+        inlet.time_correction()
         info = inlet.info()
         producer.sendToKafka({'outletName':outletName, 'info':info.as_xml(), 'timestampLSL': timestampLSL, 'timestampSystem':timestampSystem},topicName,kafkaPort)
 
@@ -32,9 +33,6 @@ class ReceiveLSLStreamToKafka:
             # interested in it)
             sample, timestamp = inlet.pull_sample()
             time_correction = inlet.time_correction()
-            print(sample)
-            print(timestamp)
-            print(time_correction)
             #message = msgpack.loads({'sample':sample,'timestamp':timestamp})
             producer.sendToKafka({'outletName':outletName, 'sample':sample,'timestamp':timestamp,'time_correction':time_correction},topicName,kafkaPort)
 
