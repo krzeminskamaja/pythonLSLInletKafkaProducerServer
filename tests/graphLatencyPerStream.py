@@ -30,6 +30,9 @@ with open('data.txt') as f:
             latency.append(sampleLatency)
             #print(sampleLatency)
 
+    print('mean: ', np.mean(latency))
+    print('standard deviation: ', np.std(latency))
+
     x = np.array(range(1,len(latency)+1))
     plt.title("Plotting latency per sample")
     plt.xlabel("sample index")
