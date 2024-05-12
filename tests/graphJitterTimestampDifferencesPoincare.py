@@ -10,7 +10,7 @@ def constant_function(x):
 def constant_function_zero(x):
     return 0
 
-files=['sin10Hzattempt6.txt','sinPlusHalf10Hzattempt6.txt','sinPlusPie10Hzattempt6.txt']
+files=['sin90Hzattempt7.txt','sinPlusHalf90Hzattempt7.txt','sinPlusPie90Hzattempt7.txt']
 jitterTimestamps=[]
 jitterSinvalues=[]
 for file in files:
@@ -22,6 +22,8 @@ for file in files:
         timestampSystem = 0 
         lines = f.readlines()
         for index, line in enumerate(lines):
+            if(index>170):
+                break
             if(index%2==0):
                 continue
             if(line.strip()==""):
@@ -58,11 +60,11 @@ for timestampsIndex,timestamps in enumerate(jitterTimestamps):
     print(timestampsIndex)
     print(jitterSinvalues[timestampsIndex])
     if timestampsIndex%3==0:
-        color="red"
-    elif timestampsIndex%3==1: 
-        color="green"
-    else:
         color="blue"
+    elif timestampsIndex%3==1: 
+        color="red"
+    else:
+        color="green"
     jitterValuesToRemove = jitterSinvalues[timestampsIndex].copy()
     firstValue = jitterValuesToRemove.pop(0)
     jitterValuesToRemove.append(firstValue)

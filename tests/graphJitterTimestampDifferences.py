@@ -10,7 +10,7 @@ def constant_function(x):
 def constant_function_zero(x):
     return 0
 
-files=['sin10Hzattempt6.txt','sinPlusHalf10Hzattempt6.txt','sinPlusPie10Hzattempt6.txt']
+files=['sin10Hzattempt8.txt','sinPlusHalf10Hzattempt8.txt','sinPlusPie10Hzattempt8.txt']
 jitterTimestamps=[]
 jitterSinvalues=[]
 for file in files:
@@ -22,6 +22,8 @@ for file in files:
         timestampSystem = 0 
         lines = f.readlines()
         for index, line in enumerate(lines):
+            if(index>170):
+                break
             if(index%2==0):
                 continue
             if(line.strip()==""):
