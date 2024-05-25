@@ -7,7 +7,8 @@ To run:
 1) create a new conda environment
 2) navigate to this repository folder
 3) run "pip install -r requirements.txt" to install all necessary dependencies
-4) run "flask run --host=0.0.0.0" to start the server on all IPv4 addresses on the local machine
+4) run "flask run --host=0.0.0.0" to start the server on all IPv4 addresses on the local machine, default port 5000
+
 
 
 
